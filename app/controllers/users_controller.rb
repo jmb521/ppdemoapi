@@ -1,11 +1,23 @@
 class UsersController < ApplicationController
 
     def create
-        @user = User.new(user_params)
-        if @user.save
-            render json: @user
+        @user = User.find_or_create_by(user_params)
+        if @user.valid?
+            render json: @user, include: :timeslots
         else
-            render json: {error: "Somethin's not right"}
+            render json: {errors: @user.errors}
+        end
+    end
+
+    def show
+        @user = User.find_by(id: params[:id])
+        if @user
+            render json: @user, include: :timeslots
+        else
+            render json: {
+                status: "error", 
+                errors: "uh....somethin wrong"
+            }
         end
     end
 
